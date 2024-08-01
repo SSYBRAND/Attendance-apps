@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff;
+        }
+        .header {
+            background-color: #d32f2f;
+            color: white;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .header img {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 20px;
+        }
+        .container {
+            max-width: 400px;
+            margin: 20px auto;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .calendar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .calendar div {
+            width: calc(100% / 7 - 4px);
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin: 2px;
+            cursor: pointer;
+        }
+        .calendar .present {
+            background-color: #4caf50;
+            color: white;
+        }
+        .calendar .absent {
+            background-color: #f44336;
+            color: white;
+        }
+        .calendar .leave {
+            background-color: #ffeb3b;
+            color: black;
+        }
+        .calendar .halfday {
+            background-color: #9c27b0;
+            color: white;
+        }
+        .calendar .holiday {
+            background-color: #2196f3;
+            color: white;
+        }
+        .legend {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .legend div {
+            display: flex;
+            align-items: center;
+        }
+        .legend div span {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+            margin-right: 5px;
+            border-radius: 50%;
+        }
+        .legend .present span {
+            background-color: #4caf50;
+        }
+        .legend .absent span {
+            background-color: #f44336;
+        }
+        .legend .leave span {
+            background-color: #ffeb3b;
+        }
+        .legend .halfday span {
+            background-color: #9c27b0;
+        }
+        .legend .holiday span {
+            background-color: #2196f3;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="https://cdn-icons-png.flaticon.com/128/2099/2099238.png" alt="Back">
+        <h1>Attendance</h1>
+    </div>
+    <div class="container">
+        <h2>August 2024</h2>
+        <div class="calendar" id="calendar">
+            <!-- Calendar will be generated here by JavaScript -->
+        </div>
+        <div class="legend">
+            <div class="present"><span></span>Present</div>
+            <div class="absent"><span></span>Absent</div>
+            <div class="leave"><span></span>Leave</div>
+            <div class="halfday"><span></span>Half Day</div>
+            <div class="holiday"><span></span>Holiday</div>
+        </div>
+    </div>
+
+    <script>
+        const PASSWORD = 'Sattu4044';
+        const calendar = document.getElementById('calendar');
+        const daysInMonth = 31;
+        const startDay = 1; // Monday
+
+        // Load attendance data from localStorage
+        const attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || {};
+
+        // Create days of the week labels
+        ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(day => {
+            const dayLabel = document.createElement('div');
+            dayLabel.textContent = day;
+            dayLabel.style.fontWeight = 'bold';
+            calendar.appendChild(dayLabel);
+        });
+
+        // Create empty spaces for days before the start of the month
+        for (let i = 0; i < startDay; i++) {
+            const empty = document.createElement('div');
+            calendar.appendChild(empty);
+        }
+
+        // Function to update day status
+        const updateDayStatus = (day, status) => {
+            day.className = '';
+            if (status) day.classList.add(status);
+        };
+
+        // Create calendar days
+        for (let i = 1; i <= daysInMonth; i++) {
+            const day = document.createElement('div');
+            day.textContent = i;
+            const dayStatus = attendanceData[i];
+            if (dayStatus) updateDayStatus(day, dayStatus);
+
+            day.addEventListener('click', () => {
+                const inputPassword = prompt('Enter password to mark attendance:');
+                if (inputPassword === PASSWORD) {
+                    const currentStatus = day.className;
+                    let newStatus;
+                    switch (currentStatus) {
+                        case 'present':
+                            newStatus = 'absent';
+                            break;
+                        case 'absent':
+                            newStatus = 'leave';
+                            break;
+                        case 'leave':
+                            newStatus = 'halfday';
+                            break;
+                        case 'halfday':
+                            newStatus = 'holiday';
+                            break;
+                        case 'holiday':
+                            newStatus = '';
+                            break;
+                        default:
+                            newStatus = 'present';
+                    }
+                    updateDayStatus(day, newStatus);
+                    attendanceData[i] = newStatus;
+                    localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
+                } else {
+                    alert('Incorrect password!');
+                }
+            });
+
+            calendar.appendChild(day);
+        }
+    </script>
+</body>
+</html>
